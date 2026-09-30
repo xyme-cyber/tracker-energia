@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracker de Energía y Hábitos</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#111827">
+</head>
+<body>
+
+    <div class="container">
+        <!-- REGISTRO RÁPIDO DÍA DE HOY -->
+        <section class="quick-access-card">
+            <div class="quick-header">
+                <div>
+                    <span class="badge">Registro Rápido</span>
+                    <h2 id="quickTodayTitle">Hoy</h2>
+                </div>
+                <button id="openTodayBtn" class="quick-btn">⚡ Registrar Hoy</button>
+            </div>
+        </section>
+
+        <!-- ENCABEZADO Y NAVEGACIÓN -->
+        <header class="app-header">
+            <h1>Tracker de Energía</h1>
+            <div class="month-selector">
+                <button id="prevMonthBtn">&lt;</button>
+                <h2 id="currentMonthYear">Cargando...</h2>
+                <button id="nextMonthBtn">&gt;</button>
+            </div>
+        </header>
+
+        <!-- DASHBOARD DE BALANCE -->
+        <section class="dashboard-card">
+            <h3>Balance del Mes</h3>
+            <div class="energy-bar-container">
+                <div id="barIntenso" class="bar-segment intenso" style="width: 0%;"></div>
+                <div id="barIntermedio" class="bar-segment intermedio" style="width: 0%;"></div>
+                <div id="barLigero" class="bar-segment ligero" style="width: 0%;"></div>
+                <div id="barDescanso" class="bar-segment descanso" style="width: 0%;"></div>
+            </div>
+            <div class="legend">
+                <span class="legend-item"><span class="dot intenso"></span> Intenso (<span id="pctIntenso">0</span>%)</span>
+                <span class="legend-item"><span class="dot intermedio"></span> Intermedio (<span id="pctIntermedio">0</span>%)</span>
+                <span class="legend-item"><span class="dot ligero"></span> Ligero (<span id="pctLigero">0</span>%)</span>
+                <span class="legend-item"><span class="dot descanso"></span> Descanso (<span id="pctDescanso">0</span>%)</span>
+            </div>
+        </section>
+
+        <!-- CALENDARIO -->
+        <main class="calendar-card">
+            <div class="weekdays-grid">
+                <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+            </div>
+            <div id="calendarGrid" class="days-grid"></div>
+        </main>
+    </div>
+
+    <!-- MODAL DE REGISTRO -->
+    <div id="dayModal" class="modal hidden">
+        <div class="modal-content">
+            <span id="closeModalBtn" class="close-btn">&times;</span>
+            <h2 id="modalDateTitle">Registro del Día</h2>
+            
+            <div class="form-group">
+                <label><strong>1. Estado de Energía:</strong></label>
+                <div class="energy-options">
+                    <button class="energy-btn" data-energy="intenso">🟣 Intenso</button>
+                    <button class="energy-btn" data-energy="intermedio">🔵 Intermedio</button>
+                    <button class="energy-btn" data-energy="ligero">🟢 Ligero</button>
+                    <button class="energy-btn" data-energy="descanso">🟡 Descanso</button>
+                </div>
+            </div>
+
+            <div id="habitsSection" class="form-group">
+                <label><strong>2. Metas Cumplidas:</strong></label>
+                <div id="habitsList" class="habits-list"></div>
+                <div class="completion-rate">
+                    Cumplimiento del día: <strong id="dailyPercentage">0%</strong>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="dayNotes"><strong>3. Notas de Salud / Estado Ánimo:</strong></label>
+                <textarea id="dayNotes" rows="3" placeholder="¿Cómo te sentiste hoy?"></textarea>
+            </div>
+
+            <button id="saveDayBtn" class="save-btn">Guardar Registro</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
