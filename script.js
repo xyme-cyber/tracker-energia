@@ -1,4 +1,19 @@
-// Base de Hábitos Modificables
+// Imágenes temáticas ilustradas para cada mes (estilo Google Calendar)
+const MONTH_IMAGES = [
+    "https://images.unsplash.com/photo-1517299321609-52687d1bc55a?q=80&w=1200&auto=format&fit=crop", // Enero: Nieve / Invierno acogedor
+    "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop", // Febrero: Flores de cerezo / Primavera temprana
+    "https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=1200&auto=format&fit=crop", // Marzo: Flores coloridas
+    "https://images.unsplash.com/photo-1522383225653-ed111181a951?q=80&w=1200&auto=format&fit=crop", // Abril: Naturaleza / Primavera verde
+    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?q=80&w=1200&auto=format&fit=crop", // Mayo: Jardín / Naturaleza viva
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop", // Junio: Playa / Verano
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop", // Julio: Paisaje verdoso
+    "https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?q=80&w=1200&auto=format&fit=crop", // Agosto: Atardecer dorado
+    "https://images.unsplash.com/photo-1507181179412-1e89099e8f92?q=80&w=1200&auto=format&fit=crop", // Septiembre: Plantas / Hojas de inicio de otoño
+    "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?q=80&w=1200&auto=format&fit=crop", // Octubre: Otoño / Bosque anaranjado
+    "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1200&auto=format&fit=crop", // Noviembre: Bosque sereno / Tonalidades café
+    "https://images.unsplash.com/photo-1482686115713-0fbcaced6e28?q=80&w=1200&auto=format&fit=crop"  // Diciembre: Luces / Pinos de invierno
+];
+
 let customHabits = JSON.parse(localStorage.getItem("energyCustomHabits")) || {
     intenso: ["Plantilla financiera / Estrategia", "Publicaciones / Marketing", "Avance de Proyecto Principal"],
     intermedio: ["Taller de composición inglesa", "Taller Santander Open Academy", "Clases de Inglés"],
@@ -10,8 +25,6 @@ let selectedDay = null;
 let appData = JSON.parse(localStorage.getItem("energyTrackerData")) || {};
 let currentEnergy = null;
 
-// Elementos DOM
-const appBody = document.getElementById("appBody");
 const currentMonthYear = document.getElementById("currentMonthYear");
 const calendarGrid = document.getElementById("calendarGrid");
 const prevMonthBtn = document.getElementById("prevMonthBtn");
@@ -25,8 +38,6 @@ const dayNotes = document.getElementById("dayNotes");
 const saveDayBtn = document.getElementById("saveDayBtn");
 const openTodayBtn = document.getElementById("openTodayBtn");
 const quickTodayTitle = document.getElementById("quickTodayTitle");
-const toggleSettingsBtn = document.getElementById("toggleSettingsBtn");
-const settingsBody = document.getElementById("settingsBody");
 const addHabitBtn = document.getElementById("addHabitBtn");
 const customHabitsContainer = document.getElementById("customHabitsContainer");
 
@@ -35,10 +46,9 @@ function getTodayKey() {
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 }
 
-function updateThemeByMonth(monthIndex) {
-    appBody.className = ""; 
-    const themeGroup = Math.floor(monthIndex / 2) + 1;
-    appBody.classList.add(`theme-${themeGroup}`);
+function updateBackgroundImage(monthIndex) {
+    const imageUrl = MONTH_IMAGES[monthIndex];
+    document.styleSheets[0].insertRule(`body::before { background-image: url('${imageUrl}'); }`, document.styleSheets[0].cssRules.length);
 }
 
 function init() {
@@ -54,8 +64,9 @@ function init() {
     saveDayBtn.addEventListener("click", saveDayData);
     openTodayBtn.addEventListener("click", () => openDayModal(todayKey, appData[todayKey]));
 
-    toggleSettingsBtn.addEventListener("click", () => settingsBody.classList.toggle("hidden"));
-    addHabitBtn.addEventListener("click", addNewHabit);
+    if (addHabitBtn) {
+        addHabitBtn.addEventListener("click", addNewHabit);
+    }
 
     document.querySelectorAll(".energy-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
@@ -72,7 +83,7 @@ function renderCalendar() {
     const month = currentDate.getMonth();
     const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
     
-    updateThemeByMonth(month);
+    updateBackgroundImage(month);
     currentMonthYear.textContent = `${monthNames[month]} ${year}`;
     calendarGrid.innerHTML = "";
 
@@ -167,7 +178,7 @@ function renderHabitsChecklist(completedHabits = []) {
 
     const habits = customHabits[currentEnergy] || [];
     if (habits.length === 0) {
-        habitsList.innerHTML = "<p><em>No tienes metas registradas para este nivel. Agrégalas abajo en Configuración.</em></p>";
+        habitsList.innerHTML = "<p><em>No tienes metas registradas para este nivel. Agrégalas abajo.</em></p>";
         dailyPercentage.textContent = "0%";
         return;
     }
@@ -222,7 +233,6 @@ function saveDayData() {
     renderCalendar();
 }
 
-// Lógica de Configuración de Metas
 function addNewHabit() {
     const energySelect = document.getElementById("newHabitEnergy").value;
     const habitText = document.getElementById("newHabitText").value.trim();
@@ -244,6 +254,7 @@ function deleteHabit(energy, index) {
 }
 
 function renderCustomHabitsSettings() {
+    if (!customHabitsContainer) return;
     customHabitsContainer.innerHTML = "";
     ["intenso", "intermedio", "ligero"].forEach(energy => {
         (customHabits[energy] || []).forEach((habit, index) => {
@@ -258,5 +269,5 @@ function renderCustomHabitsSettings() {
     });
 }
 
-window.deleteHabit = deleteHabit; // Hacer accesible globalmente
+window.deleteHabit = deleteHabit;
 init();
