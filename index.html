@@ -1,97 +1,93 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="icon" href="https://img.icons8.com/emoji/96/zap-emoji.png" type="image/png">
-<link rel="apple-touch-icon" href="https://img.icons8.com/emoji/192/zap-emoji.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tracker de Energía y Hábitos</title>
+    <!-- Icono para navegador y pantalla de inicio -->
+    <link rel="icon" href="https://img.icons8.com/emoji/96/zap-emoji.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/emoji/192/zap-emoji.png">
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#F8FAFC">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body id="appBody">
-
     <div class="container">
-        <!-- REGISTRO RÁPIDO DÍA DE HOY -->
-        <section class="quick-access-card">
+        
+        <!-- REGISTRO RÁPIDO DE HOY -->
+        <div class="quick-access-card">
             <div class="quick-header">
                 <div>
-                    <span class="badge">Registro Diario</span>
+                    <span class="badge">Atajo Rápido</span>
                     <h2 id="quickTodayTitle">Hoy</h2>
                 </div>
-                <button id="openTodayBtn" class="quick-btn">⚡ Registrar Hoy</button>
+                <button id="openTodayBtn" class="quick-btn">⚡ Registrar Día</button>
             </div>
-        </section>
+        </div>
 
-        <!-- ENCABEZADO Y NAVEGACIÓN -->
-        <header class="app-header">
-            <h1>Tracker de Energía</h1>
-            <div class="month-selector">
-                <button id="prevMonthBtn">&lt;</button>
-                <h2 id="currentMonthYear">Cargando...</h2>
-                <button id="nextMonthBtn">&gt;</button>
+        <!-- PANEL Y NAVEGACIÓN DE MES -->
+        <div class="calendar-card">
+            <div class="app-header">
+                <h1 id="currentMonthYear">Cargando...</h1>
+                <div class="month-selector">
+                    <button id="prevMonthBtn">❮</button>
+                    <button id="nextMonthBtn">❯</button>
+                </div>
             </div>
-        </header>
 
-        <!-- DASHBOARD DE BALANCE -->
-        <section class="dashboard-card">
-            <h3>Balance del Mes</h3>
+            <!-- Dashboard de Balance -->
             <div class="energy-bar-container">
                 <div id="barIntenso" class="bar-segment intenso" style="width: 0%;"></div>
                 <div id="barIntermedio" class="bar-segment intermedio" style="width: 0%;"></div>
                 <div id="barLigero" class="bar-segment ligero" style="width: 0%;"></div>
                 <div id="barDescanso" class="bar-segment descanso" style="width: 0%;"></div>
             </div>
+            
             <div class="legend">
-                <span class="legend-item"><span class="dot intenso"></span> Intenso (<span id="pctIntenso">0</span>%)</span>
-                <span class="legend-item"><span class="dot intermedio"></span> Intermedio (<span id="pctIntermedio">0</span>%)</span>
-                <span class="legend-item"><span class="dot ligero"></span> Ligero (<span id="pctLigero">0</span>%)</span>
-                <span class="legend-item"><span class="dot descanso"></span> Descanso (<span id="pctDescanso">0</span>%)</span>
+                <span class="legend-item"><span class="dot intenso"></span> Intenso: <strong id="pctIntenso">0</strong>%</span>
+                <span class="legend-item"><span class="dot intermedio"></span> Intermedio: <strong id="pctIntermedio">0</strong>%</span>
+                <span class="legend-item"><span class="dot ligero"></span> Ligero: <strong id="pctLigero">0</strong>%</span>
+                <span class="legend-item"><span class="dot descanso"></span> Descanso: <strong id="pctDescanso">0</strong>%</span>
             </div>
-        </section>
+        </div>
 
-        <!-- CALENDARIO -->
-        <main class="calendar-card">
+        <!-- CALENDARIO PRINCIPAL -->
+        <div class="calendar-card">
             <div class="weekdays-grid">
                 <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
             </div>
             <div id="calendarGrid" class="days-grid"></div>
-        </main>
+        </div>
 
-        <!-- GESTOR DE METAS PERSONALIZADAS -->
-        <section class="settings-card">
+        <!-- CONFIGURACIÓN DE METAS POR NIVEL -->
+        <div class="settings-card">
             <div class="settings-header">
-                <h3>⚙️ Configurar Mis Metas</h3>
-                <button id="toggleSettingsBtn" class="sec-btn">Abrir Panel</button>
+                <h3>⚙️ Mis Metas</h3>
             </div>
-            <div id="settingsBody" class="settings-body hidden">
-                <p class="settings-desc">Agrega o elimina las metas reales para cada nivel de energía:</p>
+            <div class="settings-body">
+                <p class="settings-desc">Personaliza las actividades según tu nivel de energía:</p>
                 <div class="add-habit-form">
                     <select id="newHabitEnergy">
-                        <option value="intenso">🟣 Intenso</option>
-                        <option value="intermedio">🔵 Intermedio</option>
-                        <option value="ligero">🟢 Ligero</option>
+                        <option value="intenso">Intenso</option>
+                        <option value="intermedio">Intermedio</option>
+                        <option value="ligero">Ligero</option>
                     </select>
-                    <input type="text" id="newHabitText" placeholder="Escribe el nombre de tu meta...">
-                    <button id="addHabitBtn" class="add-btn">Agregar</button>
+                    <input type="text" id="newHabitText" placeholder="Ej. Taller Santander, Ejercicio...">
+                    <button id="addHabitBtn" class="add-btn">➕ Agregar Meta</button>
                 </div>
                 <div id="customHabitsContainer" class="custom-habits-container"></div>
             </div>
-        </section>
+        </div>
+
     </div>
 
-    <!-- MODAL DE REGISTRO DIARIO -->
+    <!-- MODAL REGISTRO DIARIO -->
     <div id="dayModal" class="modal hidden">
         <div class="modal-content">
             <span id="closeModalBtn" class="close-btn">&times;</span>
-            <h2 id="modalDateTitle">Registro del Día</h2>
+            <h2 id="modalDateTitle">Fecha</h2>
             
             <div class="form-group">
-                <label><strong>1. Estado de Energía:</strong></label>
+                <label><strong>1. ¿Qué nivel de energía tuviste?</strong></label>
                 <div class="energy-options">
                     <button class="energy-btn" data-energy="intenso">🟣 Intenso</button>
                     <button class="energy-btn" data-energy="intermedio">🔵 Intermedio</button>
@@ -100,20 +96,19 @@
                 </div>
             </div>
 
-            <div id="habitsSection" class="form-group">
-                <label><strong>2. Metas Cumplidas:</strong></label>
-                <div id="habitsList" class="habits-list"></div>
-                <div class="completion-rate">
-                    Cumplimiento del día: <strong id="dailyPercentage">0%</strong>
+            <div class="form-group">
+                <label><strong>2. Metas alcanzadas:</strong> (<span id="dailyPercentage">0%</span>)</label>
+                <div id="habitsList" class="habits-list">
+                    <p><em>Selecciona un nivel de energía arriba.</em></p>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="dayNotes"><strong>3. Notas de Salud / Estado de Ánimo:</strong></label>
-                <textarea id="dayNotes" rows="3" placeholder="¿Cómo te sentiste hoy?"></textarea>
+                <label><strong>3. Notas / Reflexión del día:</strong></label>
+                <textarea id="dayNotes" rows="3" placeholder="¿Cómo te sentiste hoy?..."></textarea>
             </div>
 
-            <button id="saveDayBtn" class="save-btn">Guardar Registro</button>
+            <button id="saveDayBtn" class="save-btn">Guardar Día</button>
         </div>
     </div>
 
