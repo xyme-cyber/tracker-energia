@@ -1,8 +1,8 @@
-const HABITS_BY_ENERGY = {
-    intenso: ["Plantilla financiera / Estrategia", "Publicaciones / Marketing", "Avance de Proyecto Principal", "Lectura compleja / Análisis"],
-    intermedio: ["Taller de composición inglesa (Coursera)", "Taller Santander Open Academy", "Clases de Inglés", "Práctica guiada"],
-    ligero: ["Comer las 3 comidas", "Lluvia de ideas semanal", "Pasar apuntes a bloc de notas", "Organización básica del día"],
-    descanso: []
+// Base de Hábitos Modificables
+let customHabits = JSON.parse(localStorage.getItem("energyCustomHabits")) || {
+    intenso: ["Plantilla financiera / Estrategia", "Publicaciones / Marketing", "Avance de Proyecto Principal"],
+    intermedio: ["Taller de composición inglesa", "Taller Santander Open Academy", "Clases de Inglés"],
+    ligero: ["Comer las 3 comidas", "Lluvia de ideas semanal", "Organización del día"]
 };
 
 let currentDate = new Date();
@@ -10,6 +10,8 @@ let selectedDay = null;
 let appData = JSON.parse(localStorage.getItem("energyTrackerData")) || {};
 let currentEnergy = null;
 
+// Elementos DOM
+const appBody = document.getElementById("appBody");
 const currentMonthYear = document.getElementById("currentMonthYear");
 const calendarGrid = document.getElementById("calendarGrid");
 const prevMonthBtn = document.getElementById("prevMonthBtn");
@@ -23,10 +25,20 @@ const dayNotes = document.getElementById("dayNotes");
 const saveDayBtn = document.getElementById("saveDayBtn");
 const openTodayBtn = document.getElementById("openTodayBtn");
 const quickTodayTitle = document.getElementById("quickTodayTitle");
+const toggleSettingsBtn = document.getElementById("toggleSettingsBtn");
+const settingsBody = document.getElementById("settingsBody");
+const addHabitBtn = document.getElementById("addHabitBtn");
+const customHabitsContainer = document.getElementById("customHabitsContainer");
 
 function getTodayKey() {
     const today = new Date();
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+}
+
+function updateThemeByMonth(monthIndex) {
+    appBody.className = ""; 
+    const themeGroup = Math.floor(monthIndex / 2) + 1;
+    appBody.classList.add(`theme-${themeGroup}`);
 }
 
 function init() {
@@ -34,12 +46,16 @@ function init() {
     quickTodayTitle.textContent = `Hoy (${todayKey})`;
 
     renderCalendar();
+    renderCustomHabitsSettings();
     
     prevMonthBtn.addEventListener("click", () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); });
     nextMonthBtn.addEventListener("click", () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); });
     closeModalBtn.addEventListener("click", () => dayModal.classList.add("hidden"));
     saveDayBtn.addEventListener("click", saveDayData);
     openTodayBtn.addEventListener("click", () => openDayModal(todayKey, appData[todayKey]));
+
+    toggleSettingsBtn.addEventListener("click", () => settingsBody.classList.toggle("hidden"));
+    addHabitBtn.addEventListener("click", addNewHabit);
 
     document.querySelectorAll(".energy-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
@@ -56,6 +72,7 @@ function renderCalendar() {
     const month = currentDate.getMonth();
     const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
     
+    updateThemeByMonth(month);
     currentMonthYear.textContent = `${monthNames[month]} ${year}`;
     calendarGrid.innerHTML = "";
 
@@ -148,7 +165,13 @@ function renderHabitsChecklist(completedHabits = []) {
         return;
     }
 
-    const habits = HABITS_BY_ENERGY[currentEnergy];
+    const habits = customHabits[currentEnergy] || [];
+    if (habits.length === 0) {
+        habitsList.innerHTML = "<p><em>No tienes metas registradas para este nivel. Agrégalas abajo en Configuración.</em></p>";
+        dailyPercentage.textContent = "0%";
+        return;
+    }
+
     habits.forEach((habit, index) => {
         const isChecked = completedHabits.includes(habit);
         const itemDiv = document.createElement("div");
@@ -199,4 +222,41 @@ function saveDayData() {
     renderCalendar();
 }
 
+// Lógica de Configuración de Metas
+function addNewHabit() {
+    const energySelect = document.getElementById("newHabitEnergy").value;
+    const habitText = document.getElementById("newHabitText").value.trim();
+
+    if (!habitText) return;
+
+    if (!customHabits[energySelect]) customHabits[energySelect] = [];
+    customHabits[energySelect].push(habitText);
+
+    localStorage.setItem("energyCustomHabits", JSON.stringify(customHabits));
+    document.getElementById("newHabitText").value = "";
+    renderCustomHabitsSettings();
+}
+
+function deleteHabit(energy, index) {
+    customHabits[energy].splice(index, 1);
+    localStorage.setItem("energyCustomHabits", JSON.stringify(customHabits));
+    renderCustomHabitsSettings();
+}
+
+function renderCustomHabitsSettings() {
+    customHabitsContainer.innerHTML = "";
+    ["intenso", "intermedio", "ligero"].forEach(energy => {
+        (customHabits[energy] || []).forEach((habit, index) => {
+            const row = document.createElement("div");
+            row.classList.add("custom-habit-row");
+            row.innerHTML = `
+                <span><strong>[${energy.toUpperCase()}]</strong> ${habit}</span>
+                <button class="delete-h-btn" onclick="deleteHabit('${energy}', ${index})">✕</button>
+            `;
+            customHabitsContainer.appendChild(row);
+        });
+    });
+}
+
+window.deleteHabit = deleteHabit; // Hacer accesible globalmente
 init();
