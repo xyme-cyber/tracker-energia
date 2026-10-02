@@ -31,7 +31,7 @@ body {
     display: flex;
     justify-content: center;
     transition: background 0.3s ease;
-    overflow-x: hidden; /* Previene scroll horizontal feo */
+    overflow-x: hidden;
 }
 
 .app-container {
@@ -42,7 +42,6 @@ body {
     gap: 16px;
 }
 
-/* Tarjetas */
 .header-card, .calendar-card, .goals-card {
     background: var(--card-bg);
     border-radius: 16px;
@@ -71,7 +70,6 @@ body {
 h1 { font-size: 1.5rem; font-weight: 700; margin-top: 2px; }
 h2 { font-size: 1.25rem; font-weight: 700; }
 
-/* Botones */
 .btn-primary {
     background: #4f46e5;
     color: white;
@@ -85,9 +83,7 @@ h2 { font-size: 1.25rem; font-weight: 700; }
     transition: all 0.2s;
 }
 
-.btn-primary:hover {
-    background: #4338ca;
-}
+.btn-primary:hover { background: #4338ca; }
 
 .btn-icon {
     background: #f1f5f9;
@@ -99,7 +95,6 @@ h2 { font-size: 1.25rem; font-weight: 700; }
     cursor: pointer;
 }
 
-/* Balance y Barra */
 .calendar-header {
     display: flex;
     justify-content: space-between;
@@ -107,9 +102,7 @@ h2 { font-size: 1.25rem; font-weight: 700; }
     margin-bottom: 12px;
 }
 
-.energy-bar-container {
-    margin-bottom: 20px;
-}
+.energy-bar-container { margin-bottom: 20px; }
 
 .energy-bar {
     display: flex;
@@ -146,7 +139,6 @@ h2 { font-size: 1.25rem; font-weight: 700; }
 .dot-ligero { background: var(--color-ligero); }
 .dot-descanso { background: var(--color-descanso); }
 
-/* Calendario Adaptable */
 .weekdays-grid {
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
@@ -190,13 +182,11 @@ h2 { font-size: 1.25rem; font-weight: 700; }
     word-break: break-word;
 }
 
-/* Colores de Días */
 .day-cell.intenso { background: var(--color-intenso-bg); color: var(--color-intenso); border-color: #e1bee7; }
 .day-cell.intermedio { background: var(--color-intermedio-bg); color: var(--color-intermedio); border-color: #bbdefb; }
 .day-cell.ligero { background: var(--color-ligero-bg); color: var(--color-ligero); border-color: #c8e6c9; }
 .day-cell.descanso { background: var(--color-descanso-bg); color: var(--color-descanso); border-color: #e0e0e0; }
 
-/* Formulario Metas */
 .subtitle { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; }
 .add-goal-form {
     display: flex;
@@ -224,6 +214,19 @@ h2 { font-size: 1.25rem; font-weight: 700; }
     cursor: pointer;
     width: 100%;
 }
+
+/* Botón de Borrar Meta */
+.btn-delete-goal {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.btn-delete-goal:hover { background: #fee2e2; }
 
 /* Modal Flotante */
 .modal-overlay {
@@ -284,12 +287,15 @@ h2 { font-size: 1.25rem; font-weight: 700; }
     font-weight: 600;
     font-size: 0.8rem;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
+/* --- CAMBIO DE COLOR: Morado Armónico en vez de amarillo --- */
 .energy-btn.selected {
-    border-color: #4f46e5;
-    background: #eeef2a;
-    box-shadow: 0 0 0 2px #818cf8;
+    border-color: #8b5cf6 !important;
+    background: #f3e8ff !important;
+    color: #6b21a8 !important;
+    box-shadow: 0 0 0 2px #c084fc !important;
 }
 
 .section-flex { display: flex; justify-content: space-between; align-items: center; }
@@ -314,8 +320,15 @@ textarea {
     font-size: 0.85rem;
 }
 
+/* Acciones en Modal (Guardar / Borrar) */
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+}
+
 .btn-save {
-    width: 100%;
+    flex: 1;
     background: #0f172a;
     color: white;
     padding: 12px;
@@ -323,9 +336,21 @@ textarea {
     border-radius: 10px;
     font-weight: 700;
     font-size: 0.9rem;
-    margin-top: 12px;
     cursor: pointer;
 }
+
+.btn-delete-day {
+    background: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fca5a5;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.btn-delete-day.hidden { display: none; }
 
 /* Toast */
 .toast {
@@ -347,7 +372,6 @@ textarea {
 
 .toast.hidden { opacity: 0; transform: translate(-50%, 20px); pointer-events: none; }
 
-/* REGLAS PARA PANTALLAS MÁS GRANDES (TABLETS Y LAPTOPS) */
 @media (min-width: 640px) {
     body { padding: 24px; }
     .header-card, .calendar-card, .goals-card { padding: 24px; }
