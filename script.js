@@ -1,4 +1,4 @@
-// --- ESTADO GLOBAL Y MEMORIA LOCAL ---
+// MEMORIA LOCAL Y ESTADO GLOBAL
 let metas = JSON.parse(localStorage.getItem('tracker_metas')) || [];
 let historial = JSON.parse(localStorage.getItem('tracker_historial')) || {};
 
@@ -6,20 +6,19 @@ let fechaNavegacion = new Date();
 let fechaSeleccionadaModal = null;
 let nivelEnergiaModal = null;
 
-// Temas de Fondo Sutiles por Mes (Estilo Google Calendar)
 const temasMeses = {
-    0: 'linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%)', // Enero
-    1: 'linear-gradient(135deg, #fce4ec 0%, #ffffff 100%)', // Febrero
-    2: 'linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%)', // Marzo
-    3: 'linear-gradient(135deg, #fff3e0 0%, #ffffff 100%)', // Abril
-    4: 'linear-gradient(135deg, #f3e5f5 0%, #ffffff 100%)', // Mayo
-    5: 'linear-gradient(135deg, #e1f5fe 0%, #ffffff 100%)', // Junio
-    6: 'linear-gradient(135deg, #fffde7 0%, #ffffff 100%)', // Julio
-    7: 'linear-gradient(135deg, #fbe9e7 0%, #ffffff 100%)', // Agosto
-    8: 'linear-gradient(135deg, #e8eaf6 0%, #ffffff 100%)', // Septiembre
-    9: 'linear-gradient(135deg, #f3e5f5 0%, #ffffff 100%)', // Octubre
-    10: 'linear-gradient(135deg, #efebe9 0%, #ffffff 100%)', // Noviembre
-    11: 'linear-gradient(135deg, #e0f2f1 0%, #ffffff 100%)'  // Diciembre
+    0: 'linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%)',
+    1: 'linear-gradient(135deg, #fce4ec 0%, #ffffff 100%)',
+    2: 'linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%)',
+    3: 'linear-gradient(135deg, #fff3e0 0%, #ffffff 100%)',
+    4: 'linear-gradient(135deg, #f3e5f5 0%, #ffffff 100%)',
+    5: 'linear-gradient(135deg, #e1f5fe 0%, #ffffff 100%)',
+    6: 'linear-gradient(135deg, #fffde7 0%, #ffffff 100%)',
+    7: 'linear-gradient(135deg, #fbe9e7 0%, #ffffff 100%)',
+    8: 'linear-gradient(135deg, #e8eaf6 0%, #ffffff 100%)',
+    9: 'linear-gradient(135deg, #f3e5f5 0%, #ffffff 100%)',
+    10: 'linear-gradient(135deg, #efebe9 0%, #ffffff 100%)',
+    11: 'linear-gradient(135deg, #e0f2f1 0%, #ffffff 100%)'
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,6 +40,7 @@ function inicializarEventos() {
 
     document.getElementById('addHabitBtn').addEventListener('click', agregarMeta);
 
+    // Botón "Registrar Día" abre correctamente el Modal flotante con la fecha de hoy
     document.getElementById('openTodayBtn').addEventListener('click', () => {
         const hoy = new Date();
         const fechaStr = formatearFecha(hoy.getFullYear(), hoy.getMonth() + 1, hoy.getDate());
@@ -52,8 +52,8 @@ function inicializarEventos() {
     const energyBtns = document.querySelectorAll('.energy-btn');
     energyBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            energyBtns.forEach(b => b.classList.remove('selected', 'active'));
-            btn.classList.add('selected', 'active');
+            energyBtns.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
             nivelEnergiaModal = btn.getAttribute('data-energy');
             actualizarListaMetasModal();
         });
@@ -62,24 +62,23 @@ function inicializarEventos() {
     document.getElementById('saveDayBtn').addEventListener('click', guardarDiaDesdeModal);
 }
 
-// GESTIÓN DE METAS
+// METAS
 function agregarMeta() {
     const input = document.getElementById('newHabitText');
     const select = document.getElementById('newHabitEnergy');
     const texto = input.value.trim();
 
     if (!texto) {
-        alert('Por favor escribe una meta.');
+        alert('Escribe una meta primero.');
         return;
     }
 
-    const nuevaMeta = {
+    metas.push({
         id: Date.now().toString(),
         texto: texto,
         categoria: select.value.toLowerCase()
-    };
+    });
 
-    metas.push(nuevaMeta);
     localStorage.setItem('tracker_metas', JSON.stringify(metas));
     input.value = '';
     renderizarMetas();
@@ -90,16 +89,16 @@ function renderizarMetas() {
     if (!contenedor) return;
 
     if (metas.length === 0) {
-        contenedor.innerHTML = '<p style="color: #888; font-size: 0.85em; margin-top: 10px;">No has agregado metas aún.</p>';
+        contenedor.innerHTML = '<p class="subtitle">No has agregado metas todavía.</p>';
         return;
     }
 
-    let html = '<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">';
+    let html = '<div style="display:flex; flex-direction:column; gap:8px;">';
     metas.forEach(m => {
         html += `
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px 12px; border-radius: 8px; border: 1px solid #eee;">
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.9rem;">
                 <span>${m.texto}</span>
-                <span class="badge ${m.categoria}" style="text-transform: uppercase; font-size: 0.75em; padding: 2px 8px; border-radius: 10px;">${m.categoria}</span>
+                <span class="badge-tag" style="text-transform:uppercase;">${m.categoria}</span>
             </div>
         `;
     });
@@ -107,7 +106,7 @@ function renderizarMetas() {
     contenedor.innerHTML = html;
 }
 
-// RENDERIZADO DEL CALENDARIO
+// CALENDARIO
 function renderizarCalendario() {
     const año = fechaNavegacion.getFullYear();
     const mes = fechaNavegacion.getMonth();
@@ -118,26 +117,20 @@ function renderizarCalendario() {
     ];
 
     document.getElementById('currentMonthYear').textContent = `${nombresMeses[mes]} de ${año}`;
-
-    // Aplicar Fondo Sutil de Mes en la Aplicación
-    document.body.style.background = temasMeses[mes] || '#f4f6f9';
+    document.body.style.background = temasMeses[mes] || '#f4f5f9';
 
     const grid = document.getElementById('calendarGrid');
     grid.innerHTML = '';
 
-    // Alineación exacta del primer día de la semana
-    const primerDiaSemana = new Date(año, mes, 1).getDay(); // 0: Dom, 1: Lun, 2: Mar, 3: Mié, 4: Jue...
+    const primerDiaSemana = new Date(año, mes, 1).getDay();
     const totalDiasMes = new Date(año, mes + 1, 0).getDate();
 
-    // Rellenar espacios vacíos
     for (let i = 0; i < primerDiaSemana; i++) {
         const vacio = document.createElement('div');
-        vacio.className = 'day-cell empty';
         vacio.style.visibility = 'hidden';
         grid.appendChild(vacio);
     }
 
-    // Dibujar días del mes
     for (let d = 1; d <= totalDiasMes; d++) {
         const fechaClave = formatearFecha(año, mes + 1, d);
         const reg = historial[fechaClave];
@@ -146,27 +139,24 @@ function renderizarCalendario() {
         diaCell.className = 'day-cell';
 
         let textoDesglose = '';
-        let claseColor = '';
 
         if (reg) {
             if (reg.esDescanso) {
-                claseColor = 'descanso';
+                diaCell.classList.add('descanso');
                 textoDesglose = '100% Descanso';
             } else {
-                claseColor = reg.colorPredominante || 'intenso';
-
+                diaCell.classList.add(reg.colorPredominante || 'intenso');
                 let partes = [];
                 if (reg.distribucion.intenso > 0) partes.push(`${reg.distribucion.intenso}% Int`);
                 if (reg.distribucion.intermedio > 0) partes.push(`${reg.distribucion.intermedio}% Intm`);
                 if (reg.distribucion.ligero > 0) partes.push(`${reg.distribucion.ligero}% Lig`);
                 textoDesglose = partes.join('<br>');
             }
-            diaCell.classList.add(claseColor);
         }
 
         diaCell.innerHTML = `
-            <div style="font-weight: bold; font-size: 0.85em; margin-bottom: 2px;">${d}</div>
-            <div class="day-percent-text">${textoDesglose}</div>
+            <div class="day-num">${d}</div>
+            <div class="day-text">${textoDesglose}</div>
         `;
 
         diaCell.onclick = () => abrirModal(fechaClave);
@@ -176,7 +166,7 @@ function renderizarCalendario() {
     actualizarResumenMensual(año, mes);
 }
 
-// MODAL INTERACTIVO
+// MODAL Y REGISTRO
 function abrirModal(fechaClave) {
     fechaSeleccionadaModal = fechaClave;
     document.getElementById('modalDateTitle').textContent = `Registro: ${fechaClave}`;
@@ -186,15 +176,16 @@ function abrirModal(fechaClave) {
 
     const energyBtns = document.querySelectorAll('.energy-btn');
     energyBtns.forEach(btn => {
-        btn.classList.remove('selected', 'active');
+        btn.classList.remove('selected');
         if (reg && btn.getAttribute('data-energy') === reg.colorPredominante) {
-            btn.classList.add('selected', 'active');
+            btn.classList.add('selected');
         }
     });
 
     document.getElementById('dayNotes').value = reg ? (reg.notas || '') : '';
-
     actualizarListaMetasModal();
+
+    // Muestra la ventana flotante en el centro de la pantalla
     document.getElementById('dayModal').classList.remove('hidden');
 }
 
@@ -207,40 +198,37 @@ function actualizarListaMetasModal() {
     const labelPorcentaje = document.getElementById('dailyPercentage');
 
     if (!nivelEnergiaModal) {
-        contenedorHabits.innerHTML = '<p style="color: #888;">Selecciona un nivel de energía arriba.</p>';
-        labelPorcentaje.textContent = '0%';
+        contenedorHabits.innerHTML = '<p class="subtitle">Selecciona tu nivel de energía arriba.</p>';
+        labelPorcentaje.textContent = '(0%)';
         return;
     }
 
     if (nivelEnergiaModal === 'descanso') {
-        contenedorHabits.innerHTML = '<p style="color: #555; font-weight: bold;">¡Día de DESCANSO (100%)!</p>';
+        contenedorHabits.innerHTML = '<p style="font-weight:bold; color:var(--text-secondary);">Día configurado como Descanso (100%).</p>';
         labelPorcentaje.textContent = '100% Descanso';
         return;
     }
 
     if (metas.length === 0) {
-        contenedorHabits.innerHTML = '<p style="color: #888;">No tienes metas registradas. Agrega algunas abajo en "Mis Metas".</p>';
-        labelPorcentaje.textContent = '0%';
+        contenedorHabits.innerHTML = '<p class="subtitle">Agrega metas primero en la sección de abajo.</p>';
+        labelPorcentaje.textContent = '(0%)';
         return;
     }
 
     const reg = historial[fechaSeleccionadaModal];
     const marcadasPrevias = (reg && reg.metasCompletadas) ? reg.metasCompletadas : [];
 
-    let html = '<div style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">';
+    let html = '';
     metas.forEach(m => {
         const isChecked = marcadasPrevias.includes(m.id) ? 'checked' : '';
         html += `
-            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9em; cursor: pointer; background: #f8f9fa; padding: 6px 10px; border-radius: 6px;">
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
                 <input type="checkbox" class="modal-habit-check" data-id="${m.id}" data-category="${m.categoria}" ${isChecked} onchange="recalcularModalPorcentaje()">
                 <span>${m.texto}</span>
-                <span style="margin-left: auto; font-size: 0.75em; font-weight: bold; text-transform: uppercase;">(${m.categoria})</span>
             </label>
         `;
     });
-    html += '</div>';
     contenedorHabits.innerHTML = html;
-
     recalcularModalPorcentaje();
 }
 
@@ -255,7 +243,7 @@ function recalcularModalPorcentaje() {
 
     const total = checks.length;
     if (total === 0) {
-        labelPorcentaje.textContent = '0%';
+        labelPorcentaje.textContent = '(0%)';
         return;
     }
 
@@ -265,17 +253,17 @@ function recalcularModalPorcentaje() {
         if (conteo[cat] !== undefined) conteo[cat]++;
     });
 
-    const valorPorTarea = 100 / total;
-    const pInt = Math.round(conteo.intenso * valorPorTarea);
-    const pIntm = Math.round(conteo.intermedio * valorPorTarea);
-    const pLig = Math.round(conteo.ligero * valorPorTarea);
+    const valor = 100 / total;
+    const pInt = Math.round(conteo.intenso * valor);
+    const pIntm = Math.round(conteo.intermedio * valor);
+    const pLig = Math.round(conteo.ligero * valor);
 
     labelPorcentaje.textContent = `${pInt}% Int | ${pIntm}% Intm | ${pLig}% Lig`;
 }
 
 function guardarDiaDesdeModal() {
     if (!nivelEnergiaModal) {
-        alert('Por favor selecciona un nivel de energía.');
+        alert('Selecciona un nivel de energía.');
         return;
     }
 
@@ -294,7 +282,7 @@ function guardarDiaDesdeModal() {
     } else {
         const checks = document.querySelectorAll('.modal-habit-check:checked');
         if (checks.length === 0) {
-            alert('Selecciona al menos una meta realizada o marca el día como Descanso.');
+            alert('Selecciona al menos una meta realizada o marca Descanso.');
             return;
         }
 
@@ -302,20 +290,13 @@ function guardarDiaDesdeModal() {
         let conteo = { ligero: 0, intermedio: 0, intenso: 0 };
 
         checks.forEach(chk => {
-            const id = chk.getAttribute('data-id');
+            idsCompletadas.push(chk.getAttribute('data-id'));
             const cat = chk.getAttribute('data-category');
-            idsCompletadas.push(id);
             if (conteo[cat] !== undefined) conteo[cat]++;
         });
 
         const total = idsCompletadas.length;
-        const valorPorTarea = 100 / total;
-
-        const distribucion = {
-            intenso: Math.round(conteo.intenso * valorPorTarea),
-            intermedio: Math.round(conteo.intermedio * valorPorTarea),
-            ligero: Math.round(conteo.ligero * valorPorTarea)
-        };
+        const valor = 100 / total;
 
         historial[fechaSeleccionadaModal] = {
             esDescanso: false,
@@ -323,17 +304,36 @@ function guardarDiaDesdeModal() {
             totalActividades: total,
             metasCompletadas: idsCompletadas,
             conteoPorCategoria: conteo,
-            distribucion: distribucion,
+            distribucion: {
+                intenso: Math.round(conteo.intenso * valor),
+                intermedio: Math.round(conteo.intermedio * valor),
+                ligero: Math.round(conteo.ligero * valor)
+            },
             notas: notas
         };
     }
 
     localStorage.setItem('tracker_historial', JSON.stringify(historial));
+    
+    // Cierra modal
     cerrarModal();
+    
+    // Actualiza visualmente el calendario
     renderizarCalendario();
+
+    // Muestra alerta de éxito flotante y mueve suavemente la pantalla al calendario
+    mostrarToast();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// RESUMEN MENSUAL Y BARRAS SUPERIORES
+function mostrarToast() {
+    const toast = document.getElementById('toastNotification');
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 3000);
+}
+
 function actualizarResumenMensual(año, mes) {
     let acumulado = { intenso: 0, intermedio: 0, ligero: 0, total: 0 };
     let diasDescanso = 0;
