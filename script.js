@@ -1,4 +1,3 @@
-// MEMORIA LOCAL Y ESTADO GLOBAL
 let metas = JSON.parse(localStorage.getItem('tracker_metas')) || [];
 let historial = JSON.parse(localStorage.getItem('tracker_historial')) || {};
 
@@ -40,7 +39,6 @@ function inicializarEventos() {
 
     document.getElementById('addHabitBtn').addEventListener('click', agregarMeta);
 
-    // Botón "Registrar Día" abre correctamente el Modal flotante con la fecha de hoy
     document.getElementById('openTodayBtn').addEventListener('click', () => {
         const hoy = new Date();
         const fechaStr = formatearFecha(hoy.getFullYear(), hoy.getMonth() + 1, hoy.getDate());
@@ -60,9 +58,10 @@ function inicializarEventos() {
     });
 
     document.getElementById('saveDayBtn').addEventListener('click', guardarDiaDesdeModal);
+    document.getElementById('deleteDayBtn').addEventListener('click', borrarDiaDesdeModal);
 }
 
-// METAS
+// METAS (AGREGAR Y BORRAR)
 function agregarMeta() {
     const input = document.getElementById('newHabitText');
     const select = document.getElementById('newHabitEnergy');
@@ -84,6 +83,15 @@ function agregarMeta() {
     renderizarMetas();
 }
 
+function borrarMeta(idMeta) {
+    if (confirm('¿Estás segura de eliminar esta meta?')) {
+        metas = metas.filter(m => m.id !== idMeta);
+        localStorage.setItem('tracker_metas', JSON.stringify(metas));
+        renderizarMetas();
+        mostrarToast("Meta eliminada 🗑️");
+    }
+}
+
 function renderizarMetas() {
     const contenedor = document.getElementById('customHabitsContainer');
     if (!contenedor) return;
@@ -97,8 +105,11 @@ function renderizarMetas() {
     metas.forEach(m => {
         html += `
             <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:8px 12px; border-radius:8px; border:1px solid #e2e8f0; font-size:0.9rem;">
-                <span>${m.texto}</span>
-                <span class="badge-tag" style="text-transform:uppercase;">${m.categoria}</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span>${m.texto}</span>
+                    <span class="badge-tag" style="text-transform:uppercase;">${m.categoria}</span>
+                </div>
+                <button class="btn-delete-goal" onclick="borrarMeta('${m.id}')" title="Borrar Meta">🗑️</button>
             </div>
         `;
     });
@@ -166,7 +177,7 @@ function renderizarCalendario() {
     actualizarResumenMensual(año, mes);
 }
 
-// MODAL Y REGISTRO
+// MODAL Y REGISTRO DE DÍA
 function abrirModal(fechaClave) {
     fechaSeleccionadaModal = fechaClave;
     document.getElementById('modalDateTitle').textContent = `Registro: ${fechaClave}`;
@@ -183,9 +194,16 @@ function abrirModal(fechaClave) {
     });
 
     document.getElementById('dayNotes').value = reg ? (reg.notas || '') : '';
-    actualizarListaMetasModal();
+    
+    // Muestra o oculta el botón "Borrar Día" si la fecha ya tiene datos
+    const btnBorrarDia = document.getElementById('deleteDayBtn');
+    if (reg) {
+        btnBorrarDia.classList.remove('hidden');
+    } else {
+        btnBorrarDia.classList.add('hidden');
+    }
 
-    // Muestra la ventana flotante en el centro de la pantalla
+    actualizarListaMetasModal();
     document.getElementById('dayModal').classList.remove('hidden');
 }
 
@@ -314,20 +332,24 @@ function guardarDiaDesdeModal() {
     }
 
     localStorage.setItem('tracker_historial', JSON.stringify(historial));
-    
-    // Cierra modal
     cerrarModal();
-    
-    // Actualiza visualmente el calendario
     renderizarCalendario();
-
-    // Muestra alerta de éxito flotante y mueve suavemente la pantalla al calendario
-    mostrarToast();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    mostrarToast("¡Día guardado correctamente! ✨");
 }
 
-function mostrarToast() {
+function borrarDiaDesdeModal() {
+    if (confirm(`¿Quieres borrar el registro del día ${fechaSeleccionadaModal}?`)) {
+        delete historial[fechaSeleccionadaModal];
+        localStorage.setItem('tracker_historial', JSON.stringify(historial));
+        cerrarModal();
+        renderizarCalendario();
+        mostrarToast("Día eliminado correctamente 🧹");
+    }
+}
+
+function mostrarToast(mensaje = "¡Operación realizada! ✨") {
     const toast = document.getElementById('toastNotification');
+    toast.textContent = mensaje;
     toast.classList.remove('hidden');
     setTimeout(() => {
         toast.classList.add('hidden');
