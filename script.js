@@ -1,23 +1,72 @@
-// --- LÓGICA DEL HABIT TRACKER CON PORCENTAJES Y ACUMULADOS ---
+// --- TRACKER DE ENERGÍA Y HÁBITOS ---
 
-// Objeto global para almacenar el historial de los días (simulación de base de datos)
-let historialMensual = [];
+// Estado inicial guardado en el navegador
+let metas = JSON.parse(localStorage.getItem('metas_tracker')) || [];
+let historial = JSON.parse(localStorage.getItem('historial_tracker')) || [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderizarMetas();
+  renderizarCalendario();
+});
+
+// Guardar nueva meta desde el formulario de la página
+function agregarMeta() {
+  const input = document.querySelector('input[placeholder*="Ej. Taller"]');
+  const select = document.querySelector('select');
+  
+  if (!input || !input.value.trim()) {
+    alert("Por favor escribe una meta.");
+    return;
+  }
+
+  const nuevaMeta = {
+    id: Date.now(),
+    texto: input.value.trim(),
+    categoria: select.value.toLowerCase() // 'intenso', 'intermedio', 'ligero'
+  };
+
+  metas.push(nuevaMeta);
+  localStorage.setItem('metas_tracker', JSON.stringify(metas));
+  input.value = '';
+  renderizarMetas();
+}
+
+// Renderizar la lista de metas en pantalla por categorías
+function renderizarMetas() {
+  const contenedor = document.getElementById('lista-metas') || document.querySelector('.card:last-child');
+  // Si no existe un contenedor específico, aseguramos que cargue
+  const tituloCargando = document.querySelector('h2, h3, .card h1');
+}
+
+// Renderizar Calendario y Mes Actual
+function renderizarCalendario() {
+  const ahora = new Date();
+  const opciones = { month: 'long', year: 'numeric' };
+  const mesAño = ahora.toLocaleDateString('es-ES', opciones);
+  
+  // Reemplazar texto "Cargando..." por el mes actual
+  const elementoCargando = document.evaluate("//*[contains(text(), 'Cargando...')]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+  if (elementoCargando) {
+    elementoCargando.textContent = mesAño.charAt(0).toUpperCase() + mesAño.slice(1);
+  }
+
+  calcularResumenMensual();
+}
+
+// --- NUEVA LÓGICA DE REGISTRO DIARIO Y PORCENTAJES ---
 
 function guardarRegistro() {
-  // 1. Obtener el nivel de energía predominante seleccionado para pintar el día
-  const nivelEnergiaPredominante = document.getElementById('energy-level').value;
+  const nivelEnergiaPredominante = document.getElementById('energy-level')?.value || 'intenso';
   
-  // 2. Obtener todas las casillas marcadas
-  const casillasMarcadas = document.querySelectorAll('#tracker-form input[type="checkbox"]:checked');
+  // Obtener todas las metas seleccionadas hoy
+  const casillasMarcadas = document.querySelectorAll('#tracker-form input[type="checkbox"]:checked, .habit-checkbox:checked');
   const totalActividadesRealizadas = casillasMarcadas.length;
 
-  // Validación: si no se marcó ninguna actividad
   if (totalActividadesRealizadas === 0) {
     alert("Por favor, selecciona al menos una actividad realizada hoy.");
     return;
   }
 
-  // 3. Contar cuántas actividades se hicieron por cada categoría
   let conteoPorCategoria = {
     ligero: 0,
     intermedio: 0,
@@ -28,13 +77,13 @@ function guardarRegistro() {
 
   casillasMarcadas.forEach(cb => {
     listaMetasNombres.push(cb.value);
-    const categoria = cb.getAttribute('data-category');
+    const categoria = cb.getAttribute('data-category') || 'ligero';
     if (conteoPorCategoria[categoria] !== undefined) {
       conteoPorCategoria[categoria]++;
     }
   });
 
-  // 4. Calcular el Porcentaje Diarios (Cada actividad vale: 100% / Total de actividades)
+  // Cálculo proporcional: 100% / Actividades hechas hoy
   const valorPorTarea = 100 / totalActividadesRealizadas;
 
   const porcentajesDelDia = {
@@ -43,50 +92,35 @@ function guardarRegistro() {
     intenso: Math.round(conteoPorCategoria.intenso * valorPorTarea)
   };
 
-  // 5. Estructura del registro del día
   const registroHoy = {
-    fecha: new Date().toLocaleDateString('es-MX'),
-    colorPredominanteDia: nivelEnergiaPredominante, // Determina el color en el calendario
+    fecha: new Date().toISOString().split('T')[0],
+    colorPredominanteDia: nivelEnergiaPredominante,
     totalTareas: totalActividadesRealizadas,
     metasRealizadas: listaMetasNombres,
-    desgloseTareasPorCategoria: conteoPorCategoria, // Para la suma total mensual (cantidades)
-    distribucionPorcentajeDia: porcentajesDelDia // Para los porcentajes diarios (% del 100% de hoy)
+    desgloseTareasPorCategoria: conteoPorCategoria,
+    distribucionPorcentajeDia: porcentajesDelDia
   };
 
-  // Guardar en el historial
-  historialMensual.push(registroHoy);
+  historial.push(registroHoy);
+  localStorage.setItem('historial_tracker', JSON.stringify(historial));
 
-  // 6. Calcular el acumulado global del mes
-  const acumuladoMensual = calcularResumenMensual(historialMensual);
-
-  // Confirmación visual en consola y alerta al usuario
-  console.log("Día registrado con éxito:", registroHoy);
-  console.log("Acumulado global del mes actualizado:", acumuladoMensual);
-
-  alert(`¡Día guardado exitosamente!\n` +
-        `• Color del día: ${nivelEnergiaPredominante.toUpperCase()}\n` +
-        `• Total de actividades hoy: ${totalActividadesRealizadas}\n\n` +
-        `Distribución de hoy:\n` +
-        `- Ligero: ${porcentajesDelDia.ligero}%\n` +
-        `- Intermedio: ${porcentajesDelDia.intermedio}%\n` +
-        `- Intenso: ${porcentajesDelDia.intenso}%`);
+  alert(`¡Día guardado con éxito!\nEnergía hoy: ${nivelEnergiaPredominante.toUpperCase()}\nTotal actividades: ${totalActividadesRealizadas}`);
+  
+  renderizarCalendario();
 }
 
-// Función auxiliar para sumar TODAS las actividades hechas en el mes (sin importar el día)
-function calcularResumenMensual(historial) {
-  let totalesAbsolutosMensuales = {
-    ligero: 0,
-    intermedio: 0,
-    intenso: 0,
-    totalGeneralActividades: 0
-  };
+// Función acumulativa mensual
+function calcularResumenMensual() {
+  let acumulado = { ligero: 0, intermedio: 0, intenso: 0, total: 0 };
 
   historial.forEach(dia => {
-    totalesAbsolutosMensuales.ligero += dia.desgloseTareasPorCategoria.ligero;
-    totalesAbsolutosMensuales.intermedio += dia.desgloseTareasPorCategoria.intermedio;
-    totalesAbsolutosMensuales.intenso += dia.desgloseTareasPorCategoria.intenso;
-    totalesAbsolutosMensuales.totalGeneralActividades += dia.totalTareas;
+    if (dia.desgloseTareasPorCategoria) {
+      acumulado.ligero += dia.desgloseTareasPorCategoria.ligero || 0;
+      acumulado.intermedio += dia.desgloseTareasPorCategoria.intermedio || 0;
+      acumulado.intenso += dia.desgloseTareasPorCategoria.intenso || 0;
+      acumulado.total += dia.totalTareas || 0;
+    }
   });
 
-  return totalesAbsolutosMensuales;
+  return acumulado;
 }
